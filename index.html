@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoMLA Lite</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; color: #333; }
+        section { background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e9ecef; }
+        input { display: block; width: 100%; padding: 8px; margin: 8px 0 16px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { background: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; }
+        button:hover { background: #0056b3; }
+        ul { list-style: none; padding: 0; }
+        li { background: white; padding: 12px; margin-bottom: 8px; border-radius: 4px; border: 1px solid #dee2e6; display: flex; justify-content: space-between; align-items: center; }
+        .btn-group { display: flex; gap: 8px; }
+        .copy-btn { background: #28a745; width: auto; font-size: 14px; }
+        .copy-btn:hover { background: #218838; }
+        .delete-btn { background: #dc3545; width: auto; font-size: 14px; }
+        .delete-btn:hover { background: #c82333; }
+    </style>
+</head>
+<body>
+
+    <h1>AutoMLA Lite</h1>
+    <p>Save profiles locally. Click any class to copy a formatted MLA header to your clipboard.</p>
+
+    <section>
+        <h3>1. Your Name</h3>
+        <input type="text" id="studentName" placeholder="e.g., Jane Doe" oninput="saveStudentName()">
+    </section>
+
+    <section>
+        <h3>2. Add a Class Profile</h3>
+        <label>Class Name</label>
+        <input type="text" id="className" placeholder="e.g., English 101">
+        
+        <label>Teacher Name</label>
+        <input type="text" id="teacherName" placeholder="e.g., Dr. Smith">
+        
+        <button onclick="addClassProfile()">Save Class Profile</button>
+    </section>
+
+    <section>
+        <h3>3. Your Class Headers</h3>
+        <ul id="classesList"></ul>
+    </section>
+
+    <script>
+        // Load initial data from localStorage on page boot
+        let profiles = JSON.parse(localStorage.getItem('mla_profiles')) || [];
+        document.getElementById('studentName').value = localStorage.getItem('mla_student_name') || '';
+
+        function saveStudentName() {
+            localStorage.setItem('mla_student_name', document.getElementById('studentName').value);
+        }
+
+        function addClassProfile() {
+            const classNameInput = document.getElementById('className');
+            const teacherNameInput = document.getElementById('teacherName');
+
+            if (!classNameInput.value || !teacherNameInput.value) return alert('Fill out both fields!');
+
+            const newProfile = {
+                id: Date.now(),
+                className: classNameInput.value,
+                teacherName: teacherNameInput.value
+            };
+
+            profiles.push(newProfile);
+            localStorage.setItem('mla_profiles', JSON.stringify(profiles));
+            
+            // Clear inputs and refresh layout
+            classNameInput.value = '';
+            teacherNameInput.value = '';
+            renderProfiles();
+        }
+
+        function deleteProfile(id) {
+            profiles = profiles.filter(p => p.id !== id);
+            localStorage.setItem('mla_profiles', JSON.stringify(profiles));
+            renderProfiles();
+        }
+
+        function copyMLAHeader(className, teacherName) {
+            const studentName = document.getElementById('studentName').value || "[Your Name]";
+            
+            // Format current date matching typical MLA layouts (e.g., 14 July 2026)
+            const options = { day: 'numeric', month: 'long', year: 'numeric' };
+            const today = new Date().toLocaleDateString('en-GB', options);
+
+            // Create the classic 4-line text payload
+            const mlaHeader = `${studentName}\n${teacherName}\n${className}\n${today}\n`;
+
+            // Push directly to user's system clipboard
+            navigator.clipboard.writeText(mlaHeader).then(() => {
+                alert(`Copied Header to Clipboard:\n\n${mlaHeader}`);
+            }).catch(err => {
+                console.error('Could not copy text: ', err);
+            });
+        }
+
+        function renderProfiles() {
+            const list = document.getElementById('classesList');
+            list.innerHTML = profiles.length === 0 ? '<p style="color:#777;">No classes saved yet.</p>' : '';
+
+            profiles.forEach(p => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <div>
+                        <strong>${p.className}</strong><br>
+                        <small style="color:#666;">${p.teacherName}</small>
+                    </div>
+                    <div class="btn-group">
+                        <button class="copy-btn" onclick="copyMLAHeader('${p.className}', '${p.teacherName}')">📋 Copy MLA</button>
+                        <button class="delete-btn" onclick="deleteProfile(${p.id})">✕</button>
+                    </div>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        // Run on page load
+        renderProfiles();
+    </script>
+</body>
+</html>
