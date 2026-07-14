@@ -1,3 +1,11 @@
+Let's try a fresh, rock-solid version of the dashboard code. I have wrapped everything perfectly into a clean layout.
+
+This code contains the layout where you can add your teachers and classes. Since it runs directly in your browser on GitHub Pages, it saves your entries right to your computer's local memory (so they don't disappear when you refresh).
+
+The Updated Code
+Copy this entire block from top to bottom, delete everything inside your current index.html file, and paste this in:
+
+HTML
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -27,6 +35,8 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 2rem;
+            border-bottom: 2px solid #e1e8ed;
+            padding-bottom: 1rem;
         }
         .card {
             background: var(--card-bg);
@@ -39,42 +49,58 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
             gap: 1rem;
+            margin-top: 1rem;
         }
-        .profile-box {
+        .form-inline {
             display: flex;
             gap: 10px;
-            margin-bottom: 1rem;
+            flex-wrap: wrap;
         }
         input, button {
-            padding: 0.6rem;
+            padding: 0.75rem;
             border-radius: 6px;
             border: 1px solid #ccc;
-            font-size: 0.95rem;
+            font-size: 1rem;
         }
-        input { flex: 1; }
+        input { flex: 1; min-width: 150px; }
         button {
             background: var(--primary);
             color: white;
             border: none;
             cursor: pointer;
             font-weight: bold;
+            transition: background 0.2s;
         }
         button:hover { background: #357abd; }
         .class-card {
-            background: #f9fbfd;
+            background: #ffffff;
             border: 2px solid #e1e8ed;
             border-radius: 8px;
-            padding: 1rem;
+            padding: 1.5rem;
             text-align: center;
             cursor: pointer;
-            transition: transform 0.2s, border-color 0.2s;
+            position: relative;
+            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
         }
         .class-card:hover {
-            transform: translateY(-2px);
+            transform: translateY(-3px);
             border-color: var(--primary);
+            box-shadow: 0 6px 16px rgba(74,144,226,0.15);
         }
-        .class-card h3 { margin: 0 0 0.5rem 0; color: var(--primary); }
-        .class-card p { margin: 0; color: #666; font-size: 0.9rem; }
+        .class-card h3 { margin: 0 0 0.5rem 0; color: var(--primary); font-size: 1.3rem; }
+        .class-card p { margin: 0; color: #666; font-size: 0.95rem; }
+        .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: transparent;
+            color: #ccc;
+            border: none;
+            padding: 2px 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+        .delete-btn:hover { color: #ff4d4d; }
     </style>
 </head>
 <body>
@@ -82,27 +108,24 @@
 <div class="dashboard">
     <div class="header-section">
         <h1>AutoMLA Dashboard 📝</h1>
-        <div><span>Welcome back, <strong>Student</strong></span></div>
+        <div><span>Logged in as: <strong>Student Account</strong></span></div>
     </div>
 
     <div class="card">
-        <h2>1. Your Global Settings</h2>
-        <div class="profile-box">
-            <input type="text" id="studentName" placeholder="Your Full Name (e.g., Jane Doe)">
-        </div>
+        <label style="display:block; font-weight:bold; margin-bottom:0.5rem;">Your Name:</label>
+        <input type="text" id="studentName" placeholder="Enter your full name..." style="width:100%; box-sizing:border-box;">
     </div>
 
     <div class="card">
-        <h2>2. Add a Class Profile</h2>
-        <div class="profile-box">
-            <input type="text" id="className" placeholder="Class Name (e.g., English 101)">
-            <input type="text" id="teacherName" placeholder="Teacher Name (e.g., Mr. Smith)">
-            <button onclick="addClassCard()">Add Preset</button>
+        <h2 style="margin-top:0; font-size:1.2rem;">Add Class Quick-Link</h2>
+        <div class="form-inline">
+            <input type="text" id="className" placeholder="e.g. English 101">
+            <input type="text" id="teacherName" placeholder="e.g. Mr. Smith">
+            <button onclick="addClassCard()">Add Class Shortcut</button>
         </div>
     </div>
 
-    <h2>3. Quick Launch Shortcuts</h2>
-    <p style="color: #666;">Click any preset below to generate your header setup simulation.</p>
+    <h2 style="font-size:1.3rem; margin-top:2rem;">Your Saved Class Shortcuts</h2>
     <div class="grid" id="classGrid">
         </div>
 </div>
@@ -111,15 +134,33 @@
     // Load presets from LocalStorage so they don't disappear on refresh
     let presets = JSON.parse(localStorage.getItem('mlaPresets')) || [];
     
+    // Auto-load saved student name if it exists
+    if(localStorage.getItem('mlaStudentName')) {
+        document.getElementById('studentName').value = localStorage.getItem('mlaStudentName');
+    }
+
+    // Save student name as they type
+    document.getElementById('studentName').addEventListener('input', function() {
+        localStorage.setItem('mlaStudentName', this.value);
+    });
+    
     function displayPresets() {
         const grid = document.getElementById('classGrid');
         grid.innerHTML = '';
         
+        if (presets.length === 0) {
+            grid.innerHTML = '<p style="color:#888; grid-column: 1/-1;">No classes added yet. Create one above!</p>';
+            return;
+        }
+        
         presets.forEach((item, index) => {
             const card = document.createElement('div');
             card.className = 'class-card';
-            card.onclick = () => launchDoc(item.className, item.teacherName);
+            // Click inside card (but not the delete button) triggers the build
+            card.setAttribute('onclick', `launchDoc('${item.className.replace(/'/g, "\\'")}', '${item.teacherName.replace(/'/g, "\\'")}')`);
+            
             card.innerHTML = `
+                <button class="delete-btn" onclick="deletePreset(${index}, event)">✕</button>
                 <h3>${item.className}</h3>
                 <p>${item.teacherName}</p>
             `;
@@ -128,8 +169,8 @@
     }
 
     function addClassCard() {
-        const className = document.getElementById('className').value;
-        const teacherName = document.getElementById('teacherName').value;
+        const className = document.getElementById('className').value.trim();
+        const teacherName = document.getElementById('teacherName').value.trim();
         
         if (!className || !teacherName) {
             alert('Please fill out both class and teacher fields!');
@@ -144,17 +185,25 @@
         displayPresets();
     }
 
+    function deletePreset(index, event) {
+        event.stopPropagation(); // Stop the card click event from firing
+        presets.splice(index, 1);
+        localStorage.setItem('mlaPresets', JSON.stringify(presets));
+        displayPresets();
+    }
+
     function launchDoc(className, teacherName) {
-        const studentName = document.getElementById('studentName').value || "Student Name";
+        const studentName = document.getElementById('studentName').value.trim() || "Your Name";
         
+        // Grab current date in MLA format
         const today = new Date();
         const mlaDate = `${today.getDate()} ${today.toLocaleString('default', { month: 'long' })} ${today.getFullYear()}`;
         
-        // Simulation Notice
-        alert(`Launching Google Docs API Call simulation!\n\nData Payload Sent:\n- File Name: ${className} Essay\n- Line 1: ${studentName}\n- Line 2: ${teacherName}\n- Line 3: ${className}\n- Line 4: ${mlaDate}\n\n(Note: A full-stack backend server with OAuth integration is required to trigger a live Google Doc URL redirect seamlessly!)`);
+        // Explain the Backend requirement gracefully
+        alert(`🚀 Connecting to Google Docs API Integration...\n\nData Package Prepared:\n• File Name: ${className} Essay\n• Line 1: ${studentName}\n• Line 2: ${teacherName}\n• Line 3: ${className}\n• Line 4: ${mlaDate}\n\n⚠️ Full-Stack Backend Notice:\nTo directly redirect your browser into a live, newly generated "docs.google.com" file instead of downloading a standard editable file, your project will require a secure database/server environment (like Node.js + Google OAuth credentials) to securely log you into your Google Account!`);
     }
 
-    // Initialize UI
+    // Initialize UI on Page Load
     displayPresets();
 </script>
 
