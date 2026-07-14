@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MLA | LUXE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:ital@0;1&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Modern Reset */
+        *, *::before, *::after { box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Montserrat', sans-serif; 
+            max-width: 750px; 
+            margin: 0 auto; 
+            padding: 60px 30px; 
+            background: #111; /* Charcoal/Dark Black */
+            color: #dcd0b8; /* Creamy/Goldish Text */
+            -webkit-font-smoothing: antialiased;
+            letter-spacing: 0.02em;
+        }
+
+        /* Luxury Typography */
+        h1, h3 { font-family: 'Playfair Display', serif; font-weight: 400; color: #fdfaf5; text-transform: uppercase; letter-spacing: 0.15em; }
+        h1 { font-size: 2.8rem; text-align: center; margin-bottom: 50px; border-bottom: 2px solid #bdae91; padding-bottom: 15px; }
+        h3 { font-size: 1.3rem; margin-top: 0; color: #bdae91; } /* Muted Gold for Section Titles */
+        p.subtitle { text-align: center; font-style: italic; color: #dcd0b8; opacity: 0.8; font-weight: 300; margin-bottom: 60px; }
+
+        /* Modernized Sections */
+        section { 
+            background: #1a1a1a; /* Very Dark Gray Cards */
+            padding: 35px; 
+            border-radius: 6px; 
+            margin-bottom: 35px; 
+            border: 1px solid #333; 
+            transition: all 0.3s ease;
+        }
+        section:hover { border-color: #555; }
+
+        /* The Luxe Inputs */
+        input { 
+            display: block; 
+            width: 100%; 
+            padding: 14px; 
+            margin: 10px 0 25px 0; 
+            border: 1px solid #333; 
+            border-radius: 4px; 
+            background: #222; /* Darker input bg */
+            color: #fdfaf5;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        input:focus { border-color: #bdae91; outline: none; background: #2a2a2a; }
+
+        /* Buttons: Minimal but Elegant */
+        button { 
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            background: transparent; 
+            color: #fdfaf5;
+            border: 1px solid #bdae91;
+            padding: 14px 20px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            width: 100%; 
+            transition: all 0.2s;
+        }
+        button:hover { background: #bdae91; color: #111; }
+
+        /* The Classes List (More sophisticated list items) */
+        ul { list-style: none; padding: 0; }
+        li { 
+            background: #222; 
+            padding: 20px; 
+            margin-bottom: 15px; 
+            border-radius: 4px; 
+            border: 1px solid transparent; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            transition: border-color 0.2s;
+        }
+        li:hover { border-color: #444; }
+        .class-info strong { color: #fdfaf5; font-size: 1.1rem; }
+        .class-info small { color: #aaa; }
+
+        /* Control Group for List */
+        .btn-group { display: flex; gap: 10px; }
+        
+        /* Secondary Copy Action */
+        .copy-btn { width: auto; font-size: 0.85rem; padding: 10px 18px; border-color: #5cb85c; color: #5cb85c; }
+        .copy-btn:hover { background: #5cb85c; color: #111; border-color: #5cb85c; }
+
+        /* Subtle Delete Action */
+        .delete-btn { width: auto; font-size: 0.85rem; padding: 10px 18px; border-color: #d9534f; color: #d9534f; }
+        .delete-btn:hover { background: #d9534f; color: #111; border-color: #d9534f; }
+
+        /* ============================ 
+           SCROLL-DOWN GAME STYLES 
+           ============================ */
+        
+        #gameSection { border: 2px solid #333; }
+        #gameArea { background: #000; padding: 25px; border-radius: 4px; text-align: center; min-height: 200px; position: relative; }
+        #questionText { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #fdfaf5; margin-bottom: 20px; }
+        .choice-btn { width: auto; margin: 10px; font-size: 0.9rem; border-color: #bdae91; }
+        .choice-btn:hover { background: #bdae91; color: #111; }
+        
+        #gameScore { color: #bdae91; font-weight: bold; margin-top: 15px; }
+        #secretShortcut { position: absolute; bottom: 10px; right: 10px; opacity: 0.2; color: #aaa; cursor: pointer; display: none;}
+        #secretShortcut.active { display: block; }
+    
+    </style>
+</head>
+<body>
+
+    <h1>MLA Luxe</h1>
+    <p class="subtitle">Streamline your scholarship. Save locally. Copy effortlessly.</p>
+
+    <section>
+        <h3>1. Your Identity</h3>
+        <input type="text" id="studentName" placeholder="e.g., Jonathan Mercer" oninput="saveStudentName()">
+    </section>
+
+    <section>
+        <h3>2. Define Class Profile</h3>
+        
+        <input type="text" id="className" placeholder="e.g., AP Literature 102">
+        
+        <input type="text" id="teacherName" placeholder="e.g., Dr. A. Smith">
+        
+        <button onclick="addClassProfile()">Archive Profile</button>
+    </section>
+
+    <section>
+        <h3>3. Active Headers</h3>
+        <ul id="classesList"></ul>
+    </section>
+
+    <section id="gameSection">
+        <h3>Bonus: MLA Maze Mind</h3>
+        <p style="font-size: 0.9rem; margin-bottom: 20px;">Think you know academic formatting? Test your MLA knowledge! Get 3 correct in a row for a secret.</p>
+        
+        <div id="gameArea">
+            <div id="gameStart" style="display:block;">
+                <button onclick="startGame()">Begin Test</button>
+            </div>
+            <div id="gameActive" style="display:none;">
+                <p id="questionText">The full date format in MLA is:</p>
+                <button class="choice-btn" onclick="checkAnswer('A')">A: July 14, 2026</button>
+                <button class="choice-btn" onclick="checkAnswer('B')">B: 14 July 2026</button>
+                <button class="choice-btn" onclick="checkAnswer('C')">C: 2026-07-14</button>
+                <div id="gameScore">Current Streak: 0</div>
+                <div id="secretShortcut" onclick="useSecretCopy()">⧉</div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        /* ============================ 
+           MAIN MLA LOGIC (MODERNIZED)
+           ============================ */
+        
+        // Load initial data from localStorage on page boot
+        let profiles = JSON.parse(localStorage.getItem('mla_profiles_luxe')) || [];
+        document.getElementById('studentName').value = localStorage.getItem('mla_student_name') || '';
+
+        function saveStudentName() {
+            localStorage.setItem('mla_student_name', document.getElementById('studentName').value);
+        }
+
+        function addClassProfile() {
+            const classNameInput = document.getElementById('className');
+            const teacherNameInput = document.getElementById('teacherName');
+
+            // Quick valid check
+            if (!classNameInput.value.trim() || !teacherNameInput.value.trim()) {
+                alert('Fill out both fields to proceed.');
+                return;
+            }
+
+            const newProfile = {
+                id: Date.now(),
+                className: classNameInput.value,
+                teacherName: teacherNameInput.value
+            };
+
+            profiles.push(newProfile);
+            // Unique key for Luxe profiles
+            localStorage.setItem('mla_profiles_luxe', JSON.stringify(profiles));
+            
+            // Clear inputs and refresh layout
+            classNameInput.value = '';
+            teacherNameInput.value = '';
+            renderProfiles();
+        }
+
+        function deleteProfile(id) {
+            profiles = profiles.filter(p => p.id !== id);
+            localStorage.setItem('mla_profiles_luxe', JSON.stringify(profiles));
+            renderProfiles();
+        }
+
+        function copyMLAHeader(className, teacherName) {
+            const studentName = document.getElementById('studentName').value || "[Your Name]";
+            
+            // MLA Date format (e.g., 14 July 2026)
+            const options = { day: 'numeric', month: 'long', year: 'numeric' };
+            const today = new Date().toLocaleDateString('en-GB', options);
+
+            // Create the classic 4-line text payload
+            const mlaHeader = `${studentName}\n${teacherName}\n${className}\n${today}\n`;
+
+            // Push directly to user's system clipboard
+            navigator.clipboard.writeText(mlaHeader).then(() => {
+                alert(`Header Copied to Clipboard:\n\n${mlaHeader}`);
+            }).catch(err => {
+                console.error('Luxe Copy Failure: ', err);
+            });
+        }
+
+        function renderProfiles() {
+            const list = document.getElementById('classesList');
+            // Minimal no-classes placeholder
+            list.innerHTML = profiles.length === 0 ? '<p style="color:#777; text-align:center; font-style:italic; padding: 20px;">Your academic archives are currently empty.</p>' : '';
+
+            profiles.forEach(p => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <div class="class-info">
+                        <strong>${p.className}</strong><br>
+                        <small>${p.teacherName}</small>
+                    </div>
+                    <div class="btn-group">
+                        <button class="copy-btn" onclick="copyMLAHeader('${p.className}', '${p.teacherName}')">📋 Copy</button>
+                        <button class="delete-btn" onclick="deleteProfile(${p.id})">✕</button>
+                    </div>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        /* ============================ 
+           MLA MAZE TRIVIA GAME
+           ============================ */
+        const questions = [
+            {q: "The full date format in MLA header is:", options: {A: "July 14, 2026", B: "14 July 2026", C: "2026-07-14"}, a: "B"},
+            {q: "Your Student Name goes on which line?", options: {A: "Line 1", B: "Line 2", C: "Line 4"}, a: "A"},
+            {q: "Which line does your Teacher's name occupy?", options: {A: "Line 1", B: "Line 2", C: "Line 3"}, a: "B"}
+        ];
+
+        let currentStreak = 0;
+        let qIndex = 0;
+
+        function startGame() {
+            document.getElementById('gameStart').style.display = 'none';
+            document.getElementById('gameActive').style.display = 'block';
+            showQuestion();
+        }
+
+        function showQuestion() {
+            if (qIndex >= questions.length) qIndex = 0; // Loop questions
+            
+            const qData = questions[qIndex];
+            document.getElementById('questionText').innerText = qData.q;
+            const buttons = document.getElementById('gameActive').querySelectorAll('.choice-btn');
+            
+            buttons[0].innerText = `A: ${qData.options.A}`;
+            buttons[1].innerText = `B: ${qData.options.B}`;
+            buttons[2].innerText = `C: ${qData.options.C}`;
+        }
+
+        function checkAnswer(selectedChoice) {
+            if (selectedChoice === questions[qIndex].a) {
+                currentStreak++;
+                qIndex++;
+                if (currentStreak === 3) {
+                    // Activate Secret
+                    document.getElementById('secretShortcut').classList.add('active');
+                }
+                showQuestion();
+            } else {
+                currentStreak = 0;
+                document.getElementById('secretShortcut').classList.remove('active');
+                qIndex = 0; // Reset question loop
+                alert("Incorrect. The streak is broken.");
+                showQuestion();
+            }
+            document.getElementById('gameScore').innerText = `Current Streak: ${currentStreak}`;
+        }
+
+        function useSecretCopy() {
+            if (profiles.length > 0) {
+                const secretProfile = profiles[0]; // Copy the *first* saved profile instantly
+                alert("Bonus Secret Activated: Copying your first profile header now!");
+                copyMLAHeader(secretProfile.className, secretProfile.teacherName);
+            } else {
+                alert("Secret Shortcut Activated! But you have no profiles saved to copy.");
+            }
+        }
+
+        // Run rendering on page load
+        renderProfiles();
+    </script>
+</body>
+</html>
