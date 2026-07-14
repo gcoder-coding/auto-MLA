@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoMLA Dashboard</title>
+    <style>
+        :root {
+            --primary: #4a90e2;
+            --bg: #f5f7fa;
+            --card-bg: #ffffff;
+            --text: #333333;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 2rem;
+        }
+        .dashboard {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+        .profile-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+        input, button {
+            padding: 0.6rem;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 0.95rem;
+        }
+        input { flex: 1; }
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { background: #357abd; }
+        .class-card {
+            background: #f9fbfd;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .class-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+        }
+        .class-card h3 { margin: 0 0 0.5rem 0; color: var(--primary); }
+        .class-card p { margin: 0; color: #666; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+<div class="dashboard">
+    <div class="header-section">
+        <h1>AutoMLA Dashboard 📝</h1>
+        <div><span>Welcome back, <strong>Student</strong></span></div>
+    </div>
+
+    <div class="card">
+        <h2>1. Your Global Settings</h2>
+        <div class="profile-box">
+            <input type="text" id="studentName" placeholder="Your Full Name (e.g., Jane Doe)">
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>2. Add a Class Profile</h2>
+        <div class="profile-box">
+            <input type="text" id="className" placeholder="Class Name (e.g., English 101)">
+            <input type="text" id="teacherName" placeholder="Teacher Name (e.g., Mr. Smith)">
+            <button onclick="addClassCard()">Add Preset</button>
+        </div>
+    </div>
+
+    <h2>3. Quick Launch Shortcuts</h2>
+    <p style="color: #666;">Click any preset below to generate your header setup simulation.</p>
+    <div class="grid" id="classGrid">
+        </div>
+</div>
+
+<script>
+    // Load presets from LocalStorage so they don't disappear on refresh
+    let presets = JSON.parse(localStorage.getItem('mlaPresets')) || [];
+    
+    function displayPresets() {
+        const grid = document.getElementById('classGrid');
+        grid.innerHTML = '';
+        
+        presets.forEach((item, index) => {
+            const card = document.createElement('div');
+            card.className = 'class-card';
+            card.onclick = () => launchDoc(item.className, item.teacherName);
+            card.innerHTML = `
+                <h3>${item.className}</h3>
+                <p>${item.teacherName}</p>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    function addClassCard() {
+        const className = document.getElementById('className').value;
+        const teacherName = document.getElementById('teacherName').value;
+        
+        if (!className || !teacherName) {
+            alert('Please fill out both class and teacher fields!');
+            return;
+        }
+
+        presets.push({ className, teacherName });
+        localStorage.setItem('mlaPresets', JSON.stringify(presets));
+        
+        document.getElementById('className').value = '';
+        document.getElementById('teacherName').value = '';
+        displayPresets();
+    }
+
+    function launchDoc(className, teacherName) {
+        const studentName = document.getElementById('studentName').value || "Student Name";
+        
+        const today = new Date();
+        const mlaDate = `${today.getDate()} ${today.toLocaleString('default', { month: 'long' })} ${today.getFullYear()}`;
+        
+        // Simulation Notice
+        alert(`Launching Google Docs API Call simulation!\n\nData Payload Sent:\n- File Name: ${className} Essay\n- Line 1: ${studentName}\n- Line 2: ${teacherName}\n- Line 3: ${className}\n- Line 4: ${mlaDate}\n\n(Note: A full-stack backend server with OAuth integration is required to trigger a live Google Doc URL redirect seamlessly!)`);
+    }
+
+    // Initialize UI
+    displayPresets();
+</script>
+
+</body>
+</html>
